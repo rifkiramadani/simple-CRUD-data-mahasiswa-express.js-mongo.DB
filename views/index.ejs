@@ -1,0 +1,48 @@
+<%- include("./partials/header.ejs") %>
+
+<div class="container mt-3">
+    <div class="card border-dark">
+        <div class="card-body">
+            <h1>Data Mahasiswa</h1>
+            <div class="col">
+              <% if(title !== "List") { %>
+                <a href="/" class="btn btn-info text-white mt-2"><< Kembali Semua Data Mahasiswa</a>
+              <% } %>
+              <a href="/mahasiswas/create" class="btn btn-primary mt-3 mb-2">Tambah Data</a>
+            </div>
+            <table class="table table-striped table-dark mt-3 table-bordered">
+                <thead>
+                  <tr>
+                    <th scope="col">No</th>
+                    <th scope="col">Nama</th>
+                    <th scope="col">NPM</th>
+                    <th scope="col">Prodi</th>
+                    <th scope="col">Umur</th>
+                    <th scope="col">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    <% mahasiswas.forEach((mahasiswa,index) => { %>
+                  <tr>
+                    <th scope="row"><%= index + 1 %></th>
+                    <td><%= mahasiswa.name %></td>
+                    <td><%= mahasiswa.npm %></td>
+                    <td><%= mahasiswa.prodi %></td>
+                    <td><%= mahasiswa.umur %></td>
+                    <td>
+                        <a href="/mahasiswas/<%= mahasiswa.id %>/edit" class="btn btn-warning">Ubah</a>
+                        <a href="/mahasiswas/<%= mahasiswa.id %>" class="btn btn-info text-white">Detail Mahasiswa</a>
+                        <form action="/mahasiswas/<%= mahasiswa.id %>?_method=DELETE" method="post" class="d-inline">
+                            <button type="submit" class="btn btn-danger">Hapus</button>
+                        </form>
+                    </td>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+        </div>
+      </div>
+</div>
+
+
+<%- include("./partials/footer.ejs") %>
