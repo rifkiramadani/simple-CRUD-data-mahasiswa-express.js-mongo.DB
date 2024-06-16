@@ -7,38 +7,38 @@
                     <form action="/mahasiswas/<%= mahasiswa.id %>?_method=PUT" method="post">
                         <div class="mb-3">
                             <label for="name" class="form-label">Nama</label>
-                            <input type="text" class="form-control" id="name" name="name" value="<%= mahasiswa.name %>">
+                            <input type="text" class="form-control" id="name" name="name" value="<%= mahasiswa.name %>" required>
                           </div>
                           <div class="mb-3">
                             <label for="npm" class="form-label">NPM</label>
-                            <input type="text" class="form-control" id="npm" name="npm" value="<%= mahasiswa.npm %>">
+                            <input type="text" class="form-control" id="npm" name="npm" value="<%= mahasiswa.npm %>" required>
                           </div>
                           <div class="mb-3">
                             <label for="prodi" class="form-label">Prodi</label>
-                            <select class="form-select" name="prodi" id="prodi">
+                            <select class="form-select" name="prodi" id="prodi" required>
                               <option value="Teknik Informatika" <%= mahasiswa.prodi == "Teknik Informatika" ? "selected" : "" %>>Teknik Informatika</option>
                               <option value="Teknik Spil" <%= mahasiswa.prodi == "Teknik Sipil" ? "selected" : "" %>>Teknik Sipil</option>
                               <option value="Teknik Mesin" <%= mahasiswa.prodi == "Teknik Mesin" ? "selected" : "" %>>Teknik Mesin</option>
                               <option value="Teknik Elektro" <%= mahasiswa.prodi == "Teknik Elektro" ? "selected" : "" %>>Teknik Elektro</option>
                               <option value="Arsitektur" <%= mahasiswa.prodi == "Arsitektur" ? "selected" : "" %>>Arsitektur</option>
-                              <option value="Sistem Infromasi" <%= mahasiswa.prodi == "Sistem Informasi" ? "selected" : "" %>>Sistem Informasi</option>
+                              <option value="Sistem Informasi" <%= mahasiswa.prodi == "Sistem Informasi" ? "selected" : "" %>>Sistem Informasi</option>
                             </select>
                           </div>
                           <div class="mb-3">
                             <label for="umur" class="form-label">Umur</label>
-                            <input type="number" class="form-control" id="umur" name="umur" value="<%= mahasiswa.umur %>">
+                            <input type="number" class="form-control" id="umur" name="umur" value="<%= mahasiswa.umur %>" required>
                           </div>
                           <div class="mb-3">
                             <label for="tempatTanggalLahir" class="form-label">Tempat Tanggal Lahir</label>
-                            <input type="date" class="form-control" id="tempatTanggalLahir" name="tempatTanggalLahir" value="<%= mahasiswa.tempatTanggalLahir %>">
+                            <input type="date" class="form-control" id="tempatTanggalLahir" name="tempatTanggalLahir" value="<%= mahasiswa.tempatTanggalLahir %>" required>
                           </div>
                           <div class="mb-3">
                             <label for="alamat" class="form-label">Alamat</label>
-                            <input type="text" class="form-control" id="alamat" name="alamat" value="<%= mahasiswa.alamat %>">
+                            <input type="text" class="form-control" id="alamat" name="alamat" value="<%= mahasiswa.alamat %>" required>
                           </div>
                           <div class="mb-3">
                             <label for="asalSekolah" class="form-label">Asal Sekolah</label>
-                            <input type="text" class="form-control" id="asalSekolah" name="asalSekolah" value="<%= mahasiswa.asalSekolah %>">
+                            <input type="text" class="form-control" id="asalSekolah" name="asalSekolah" value="<%= mahasiswa.asalSekolah %>" required>
                           </div>
                           <button type="submit" class="btn btn-warning">Ubah</button>
                           <a href="/" class="btn btn-secondary">Kembali ke List Mahasiswa</a>
