@@ -23,24 +23,28 @@ app.use(express.static("public"));
 
 // ROUTE
 // route untuk melihat data table data mahasiswa
-app.get("/", async (req,res) => {
-    //find berdasarkan prodi
-    const {prodi} = req.query;
-    if(prodi) {
-        const mahasiswa = await Mahasiswa.find({prodi});
-        res.render("index.ejs", {
-            mahasiswas: mahasiswa,
-            title: "Category"
-        })
-    //jikalau salah maka tampilkan semua data saja
-    } else {
-        const mahasiswa = await Mahasiswa.find({});
-        res.render("index.ejs", {
-            mahasiswas: mahasiswa,
-            title: "List"
-        });
-    }
+app.get("/", (req,res) => {
+    res.send("Hello World!");   
 });
+
+app.get('/mahasiswas', async (req,res) => {
+       //find berdasarkan prodi
+       const {prodi} = req.query;
+       if(prodi) {
+           const mahasiswa = await Mahasiswa.find({prodi});
+           res.render("index.ejs", {
+               mahasiswas: mahasiswa,
+               title: "Category"
+           })
+       //jikalau salah maka tampilkan semua data saja
+       } else {
+           const mahasiswa = await Mahasiswa.find({});
+           res.render("index.ejs", {
+               mahasiswas: mahasiswa,
+               title: "List"
+           });
+       }
+})
 
 // route untuk form tambah mahasiswa atau create mahasiswa
 app.get("/mahasiswas/create", (req,res) => {
@@ -53,7 +57,7 @@ app.get("/mahasiswas/create", (req,res) => {
 app.post("/mahasiswas", async (req,res) => {
     const mahasiswa = new Mahasiswa(req.body);
     await mahasiswa.save();
-    res.redirect("/");
+    res.redirect("/mahasiswas");
 })
 
 //route untuk detail mahasiswa
@@ -87,7 +91,7 @@ app.put("/mahasiswas/:id", async (req,res) => {
 app.delete("/mahasiswas/:id", async (req,res) => {
     const {id} = req.params;
     await Mahasiswa.findByIdAndDelete(id);
-    res.redirect("/")
+    res.redirect("/mahasiswas")
 })
 
 app.listen(port, () => {
