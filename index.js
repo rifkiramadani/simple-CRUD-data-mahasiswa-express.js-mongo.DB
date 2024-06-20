@@ -5,7 +5,8 @@ const mongoose = require('mongoose');
 const methodOverride = require('method-override');
 
 //ambil data model mahasiswa
-const Mahasiswa = require("./models/Mahasiswa")
+const Mahasiswa = require("./models/Mahasiswa");
+const Dosenakademik = require("./models/Dosenakademik");
 
 //koneksi ke database
 mongoose.connect('mongodb://127.0.0.1:27017/mahasiswa_db').then((result) => {
@@ -29,6 +30,8 @@ function asyncWrapper(fn) {
 }
 
 // ROUTE
+
+// ROUTE UNTUK MAHASISWA
 app.get("/", (req,res) => {
     res.send("Hello World!");   
 });
@@ -38,52 +41,60 @@ app.get('/mahasiswas', async (req,res) => {
        //find berdasarkan prodi
        const {prodi} = req.query;
        if(prodi) {
-           const mahasiswa = await Mahasiswa.find({prodi});
-           res.render("index.ejs", {
+           const mahasiswa = await Mahasiswa.find({prodi}).populate('dosenakademik');
+           res.render("mahasiswa/index.ejs", {
                mahasiswas: mahasiswa,
-               title: "Category"
+               title: "Category Mahasiswa"
            })
        //jikalau salah maka tampilkan semua data saja
        } else {
-           const mahasiswa = await Mahasiswa.find({});
-           res.render("index.ejs", {
+           const mahasiswa = await Mahasiswa.find({}).populate('dosenakademik');
+           res.render("mahasiswa/index.ejs", {
                mahasiswas: mahasiswa,
-               title: "List"
+               title: "List Mahasiswa"
            });
        }
 })
 
 // route untuk form tambah mahasiswa atau create mahasiswa
-app.get("/mahasiswas/create", (req,res) => {
-    res.render("create.ejs", {
-        title: "Tambah"
+app.get("/mahasiswas/create", async (req,res) => {
+    const dosenakademik = await Dosenakademik.find({});
+    res.render("mahasiswa/create.ejs", {
+        title: "Tambah Mahasiswa",
+        dosenakademik: dosenakademik
     })
 })
 
 //route untuk insert data
-app.post("/mahasiswas", async (req,res) => {
+app.post("/mahasiswas", asyncWrapper(async (req,res) => {
+    //untuk menyimpan data mahasiswa sekaligus menambahkan data dosen di dalamnya
     const mahasiswa = new Mahasiswa(req.body);
+    const dosen = await Dosenakademik.findById(req.body.dosenakademik);
+    dosen.mahasiswa.push(mahasiswa.id);
     await mahasiswa.save();
-    res.redirect("/mahasiswas");
-})
+    await dosen.save()
+    res.redirect('/mahasiswas')
+}));
 
 //route untuk detail mahasiswa
 app.get("/mahasiswas/:id", asyncWrapper(async (req,res) => {
     const {id} = req.params
-    const mahasiswa = await Mahasiswa.findById(id)
-    res.render("show.ejs", {
+    const mahasiswa = await Mahasiswa.findById(id).populate('dosenakademik');
+    res.render("mahasiswa/show.ejs", {
         mahasiswa: mahasiswa,
-        title: "Detail"
+        title: "Detail Mahasiswa"
     })
 }));
 
 //route untuk form ubah mahasiswa atau edit mahasiswa
 app.get("/mahasiswas/:id/edit", asyncWrapper(async (req,res) => {
     const {id} = req.params
+    const dosenakademik = await Dosenakademik.find({});
     const mahasiswa = await Mahasiswa.findById(id);
-    res.render("edit.ejs", {
+    res.render("mahasiswa/edit.ejs", {
         mahasiswa: mahasiswa,
-        title: "Ubah"
+        dosenakademik: dosenakademik,
+        title: "Ubah Data Mahasiswa"
     })
 }));
 
@@ -97,14 +108,25 @@ app.put("/mahasiswas/:id", asyncWrapper(async (req,res) => {
 //route untuk delete data
 app.delete("/mahasiswas/:id", asyncWrapper(async (req,res) => {
     const {id} = req.params;
-    await Mahasiswa.findByIdAndDelete(id);
+    await Mahasiswa.findOneAndDelete({_id: {$in: id}});
     res.redirect("/mahasiswas")
 }))
+
+// ROUTE UNTUK DOSEN
+//Route untuk show dosen
+app.get('/dosenakademik/:id', async (req,res) => {
+    const {id} = req.params;
+    const dosenakademik = await Dosenakademik.findById(id).populate('mahasiswa');
+    res.render('dosenakademik/show.ejs', {
+        dosenakademik: dosenakademik,
+        title: "Dosen"
+    })
+})
 
 //untuk default value dan untuk bluprint error
 app.use((err,req,res,next) => {
     const {status = 500, message = "Something went wrong"} = err;
-    res.status(status).send(`<center><b>Mahasiswa tidak di temukan : </b>${message}</center>`);
+    res.status(status).send(`<center>${message}</center>`);
 })
 
 app.listen(port, () => {

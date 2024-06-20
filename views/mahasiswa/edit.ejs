@@ -1,4 +1,4 @@
-<%- include("./partials/header.ejs") %> 
+<%- include(".././partials/header.ejs") %> 
     <div class="container d-flex justify-content-center">
         <div class="card mt-3 border-dark" style="width: 35rem;">
             <div class="card-body">
@@ -40,6 +40,14 @@
                             <label for="asalSekolah" class="form-label">Asal Sekolah</label>
                             <input type="text" class="form-control" id="asalSekolah" name="asalSekolah" value="<%= mahasiswa.asalSekolah %>" required>
                           </div>
+                               <div class="mb-3">
+                            <label for="dosenakademik" class="form-label">Dosen Akademik</label>
+                            <select class="form-select" name="dosenakademik" id="dosenakademik" required>
+                              <% for(let dosen of dosenakademik) {  %>
+                              <option value="<%= dosen.id %>" <%= dosen.id == dosen.id ? "selected" : "" %>><%= dosen.name %></option>
+                              <% } %>
+                            </select>
+                          </div>
                           <button type="submit" class="btn btn-warning">Ubah</button>
                           <a href="/mahasiswas" class="btn btn-secondary">Kembali ke List Mahasiswa</a>
                     </form>
@@ -47,4 +55,4 @@
             </div>
           </div>
     </div>
-<%- include("./partials/footer.ejs") %>
+<%- include(".././partials/footer.ejs") %>

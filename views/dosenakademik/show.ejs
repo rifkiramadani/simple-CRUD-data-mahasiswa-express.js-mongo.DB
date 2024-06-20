@@ -1,0 +1,25 @@
+<%- include(".././partials/header.ejs") %> 
+<div class="container d-flex justify-content-center">
+    <div class="card mt-3 border-dark" style="width: 35rem;">
+        <div class="card-body">
+            <div class="col">
+                <h1><%= dosenakademik.name %></h1> <h3>(<%= dosenakademik.umur %> Tahun)</h3>
+                <p>
+                    <h5 class="card-title"><%= dosenakademik.nip %></h5>
+                    <div class="card-text">
+                        <p><b>Tempat Tanggal Lahir : </b><%= dosenakademik.tempatTanggalLahir%></p>
+                        <p><b>Alamat : </b><%= dosenakademik.alamat %></p>
+                        <h6>Mahasiswa yang di Bimbing: </h6>
+                        <p><b><ul>
+                            <% dosenakademik.mahasiswa.forEach(mahasiswa => { %>
+                                <li><a href="/mahasiswas/<%= mahasiswa.id %>"><%= mahasiswa.name %></a></li>
+                            <% }) %>
+                        </ul></b></p>
+                    </div>
+                </p>
+                <a href="/mahasiswas" class="btn btn-primary">Kembali Ke List Mahasiswa</a>
+            </div>
+        </div>
+      </div>
+</div>
+<%- include(".././partials/footer.ejs") %>

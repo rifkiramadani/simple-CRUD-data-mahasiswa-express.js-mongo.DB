@@ -1,4 +1,4 @@
-<%- include("./partials/header.ejs") %> 
+<%- include(".././partials/header.ejs") %> 
 <div class="container d-flex justify-content-center">
     <div class="card mt-3 border-dark" style="width: 35rem;">
         <div class="card-body">
@@ -6,11 +6,12 @@
                 <h1><%= mahasiswa.name %></h1> <h3>(<%= mahasiswa.umur %> Tahun)</h3>
                 <p>
                     <h5 class="card-title"><%= mahasiswa.npm %></h5>
-                    <h6 class="card-subtitle mb-2 text-body-secondary"><a href="/?prodi=<%= mahasiswa.prodi %>"><%= mahasiswa.prodi %></a></h6>
+                    <h6 class="card-subtitle mb-2 text-body-secondary"><a href="/mahasiswas/?prodi=<%= mahasiswa.prodi %>"><%= mahasiswa.prodi %></a></h6>
                     <div class="card-text">
                         <p><b>Tempat Tanggal Lahir : </b><%= mahasiswa.tempatTanggalLahir%></p>
                         <p><b>Alamat : </b><%= mahasiswa.alamat %></p>
                         <p><b>Asal Sekolah : </b><%= mahasiswa.asalSekolah %></p>
+                        <p><b>Dosen Pembimbing Akademik: <a href="/dosenakademik/<%= mahasiswa.dosenakademik.id %>"><%= mahasiswa.dosenakademik.name %></a></b></p>
                     </div>
                 </p>
                 <a href="/mahasiswas" class="btn btn-primary">Kembali Ke List Mahasiswa</a>
@@ -18,4 +19,4 @@
         </div>
       </div>
 </div>
-<%- include("./partials/footer.ejs") %>
+<%- include(".././partials/footer.ejs") %>

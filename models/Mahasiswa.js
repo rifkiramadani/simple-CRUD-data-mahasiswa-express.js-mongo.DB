@@ -29,7 +29,13 @@ const mahasiswaSchema = new mongoose.Schema({
     asalSekolah: {
         type: String,
         required: true
-    }
+    },
+    dosenakademik: 
+        {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Dosenakademik"
+        }
+    
 });
 
 const Mahasiswa = mongoose.model("Mahasiswa", mahasiswaSchema);
