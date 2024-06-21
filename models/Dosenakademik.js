@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 
-const mahasiswa = require("./Mahasiswa");
-
 const dosenakademikSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -33,15 +31,6 @@ const dosenakademikSchema = new mongoose.Schema({
 
 })
 
-dosenakademikSchema.post("findOneAndDelete", async function (doc) {
-    if (doc) {
-        await mahasiswa.deleteMany({
-            _id: {
-                $in: doc.mahasiswa
-            }
-        })
-    }
-})
 
 const Dosenakademik = mongoose.model("Dosenakademik", dosenakademikSchema);
 

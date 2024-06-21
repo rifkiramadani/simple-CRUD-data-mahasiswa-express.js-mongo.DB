@@ -2,7 +2,11 @@ const express = require("express");
 const app = express();
 const port = 3000;
 const mongoose = require('mongoose');
+//import method override
 const methodOverride = require('method-override');
+//import session dan session flash(connect-session)
+const session = require('express-session');
+const flash = require('connect-flash');
 
 //ambil data model mahasiswa
 const Mahasiswa = require("./models/Mahasiswa");
@@ -15,12 +19,25 @@ mongoose.connect('mongodb://127.0.0.1:27017/mahasiswa_db').then((result) => {
     console.log(err);
 });
 
+// DEFINE MIDDLEWARE
 //aktifkan libary express
 app.set("view engine", "ejs");
 app.use(methodOverride("_method"));
 app.use(express.urlencoded({extended: true}));
-
+//aktifkan folder public agar bisa di akses untuk assets seperti bootstrap js atau css
 app.use(express.static("public"));
+//aktifkan session dan session flash(connect flash)
+app.use(session({
+    secret: 'secret-key',
+    resave: false,
+    saveUninitialized: true,
+}));
+app.use(flash());
+//buat variable global agar session flash dapat digunakan di semua route atau semua halaman atau juga sebagai semantic variable untuk session nya
+app.use((req,res,next) => {
+    res.locals.flash_message = req.flash('flash_message');
+    next();
+})
 
 //error async wrapper
 function asyncWrapper(fn) {
@@ -72,7 +89,8 @@ app.post("/mahasiswas", asyncWrapper(async (req,res) => {
     const dosen = await Dosenakademik.findById(req.body.dosenakademik);
     dosen.mahasiswa.push(mahasiswa.id);
     await mahasiswa.save();
-    await dosen.save()
+    await dosen.save();
+    req.flash('flash_message', 'Data Berhasil Di Tambah!');
     res.redirect('/mahasiswas')
 }));
 
@@ -102,6 +120,7 @@ app.get("/mahasiswas/:id/edit", asyncWrapper(async (req,res) => {
 app.put("/mahasiswas/:id", asyncWrapper(async (req,res) => {
     const {id} = req.params
     await Mahasiswa.findByIdAndUpdate(id, req.body);
+    req.flash('flash_message', 'Data Berhasil Di Ubah');
     res.redirect(`/mahasiswas/${id}`);
 }))
 
@@ -109,6 +128,7 @@ app.put("/mahasiswas/:id", asyncWrapper(async (req,res) => {
 app.delete("/mahasiswas/:id", asyncWrapper(async (req,res) => {
     const {id} = req.params;
     await Mahasiswa.findOneAndDelete({_id: {$in: id}});
+    req.flash('flash_message', 'Data Berhasil Di Hapus');
     res.redirect("/mahasiswas")
 }))
 
