@@ -1,9 +1,18 @@
 <%- include(".././partials/header.ejs") %>
 
 <div class="container mt-3" style="margin-left: 3.5rem;">
-    <div class="card border-dark" style="width: 78rem;">
-        <div class="card-body">
+  <div class="card border-dark" style="width: 78rem;">
+    <div class="card-body">
+      <div class="row justify-content-end">
+        <div class="col-md-11">
           <h1>Data Mahasiswa</h1>
+        </div>
+        <div class="col-md-1">
+          <form action="logout" method="post">
+            <button type="submit" class="btn btn-outline-secondary" onclick="return confirm('Ingin Logout??')">Logout</button>
+          </form>
+        </div>
+      </div>
           <% if(flash_message && flash_message.length > 0) { %>
             <div class="alert alert-success" role="alert">
               <%= flash_message %>

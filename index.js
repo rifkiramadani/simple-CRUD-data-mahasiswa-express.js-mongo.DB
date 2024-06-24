@@ -11,6 +11,7 @@ const flash = require('connect-flash');
 //ambil data model mahasiswa
 const Mahasiswa = require("./models/Mahasiswa");
 const Dosenakademik = require("./models/Dosenakademik");
+const User = require("./models/User");
 
 //koneksi ke database
 mongoose.connect('mongodb://127.0.0.1:27017/mahasiswa_db').then((result) => {
@@ -33,11 +34,32 @@ app.use(session({
     saveUninitialized: true,
 }));
 app.use(flash());
+
 //buat variable global agar session flash dapat digunakan di semua route atau semua halaman atau juga sebagai semantic variable untuk session nya
 app.use((req,res,next) => {
     res.locals.flash_message = req.flash('flash_message');
     next();
 })
+
+//middleware untuk mengharuskan login
+const auth = (req,res,next) => {
+    //jikalau req.session.user_id tidak ada maka kembalikan ke halaamn login
+    if(!req.session.user_id) {
+        return res.redirect('/login');
+    } else {
+        //jikalau ada maka jalankan perintah selanjutnya
+        next();
+    }
+}
+
+//middleware untuk guest yang dimana jikalau sudah login tidak dapat kembali ke halaman yang tidak mengharuskan login terkecuali menekan tombol logout
+const guest = (req,res,next) => {
+    if(req.session.user_id) {
+        return res.redirect('/mahasiswas');
+    } else {
+        next()
+    }
+}
 
 //error async wrapper
 function asyncWrapper(fn) {
@@ -47,14 +69,56 @@ function asyncWrapper(fn) {
 }
 
 // ROUTE
+//ROUTE UNTUK AUTH
+app.get('/register', guest, async (req,res) => {
+    res.render("auth/register.ejs", {
+        title: "Register"
+    })
+})
+
+app.post('/register', guest, async (req,res) => {
+    const {username, password} = req.body;
+    const user = new User({
+        username,
+        password,
+    });
+    req.session.user_id;
+    await user.save();
+    req.flash("flash_message", "Berhasil Registrasi, Silahkan Login")
+    res.redirect('/login')
+})
+
+app.get('/login', guest,  async (req,res) => {
+    res.render("auth/login.ejs", {
+        title: "Login"
+    })
+})
+
+app.post('/login', guest, async (req,res) => {
+    const {username,password} = req.body;
+    const user = await User.findByCredentials(username, password);
+    if(user) {
+        req.session.user_id = user._id;
+        req.flash("flash_message", "Berhasil Login")
+        res.redirect('/mahasiswas');
+    } else {
+        res.redirect('/login')
+    }
+})
+
+app.post('/logout', auth, (req,res) => {
+    req.session.destroy(() => {
+        res.redirect('/login')
+    })
+})
 
 // ROUTE UNTUK MAHASISWA
-app.get("/", (req,res) => {
+app.get("/", guest, (req,res) => {
     res.send("Hello World!");   
 });
 
 // route untuk melihat data table data mahasiswa
-app.get('/mahasiswas', async (req,res) => {
+app.get('/mahasiswas', auth, async (req,res) => {
        //find berdasarkan prodi
        const {prodi} = req.query;
        if(prodi) {
@@ -74,7 +138,7 @@ app.get('/mahasiswas', async (req,res) => {
 })
 
 // route untuk form tambah mahasiswa atau create mahasiswa
-app.get("/mahasiswas/create", async (req,res) => {
+app.get("/mahasiswas/create", auth, async (req,res) => {
     const dosenakademik = await Dosenakademik.find({});
     res.render("mahasiswa/create.ejs", {
         title: "Tambah Mahasiswa",
@@ -83,7 +147,7 @@ app.get("/mahasiswas/create", async (req,res) => {
 })
 
 //route untuk insert data
-app.post("/mahasiswas", asyncWrapper(async (req,res) => {
+app.post("/mahasiswas", auth, asyncWrapper(async (req,res) => {
     //untuk menyimpan data mahasiswa sekaligus menambahkan data dosen di dalamnya
     const mahasiswa = new Mahasiswa(req.body);
     const dosen = await Dosenakademik.findById(req.body.dosenakademik);
@@ -95,7 +159,7 @@ app.post("/mahasiswas", asyncWrapper(async (req,res) => {
 }));
 
 //route untuk detail mahasiswa
-app.get("/mahasiswas/:id", asyncWrapper(async (req,res) => {
+app.get("/mahasiswas/:id", auth, asyncWrapper(async (req,res) => {
     const {id} = req.params
     const mahasiswa = await Mahasiswa.findById(id).populate('dosenakademik');
     res.render("mahasiswa/show.ejs", {
@@ -105,7 +169,7 @@ app.get("/mahasiswas/:id", asyncWrapper(async (req,res) => {
 }));
 
 //route untuk form ubah mahasiswa atau edit mahasiswa
-app.get("/mahasiswas/:id/edit", asyncWrapper(async (req,res) => {
+app.get("/mahasiswas/:id/edit", auth, asyncWrapper(async (req,res) => {
     const {id} = req.params
     const dosenakademik = await Dosenakademik.find({});
     const mahasiswa = await Mahasiswa.findById(id);
@@ -117,7 +181,7 @@ app.get("/mahasiswas/:id/edit", asyncWrapper(async (req,res) => {
 }));
 
 //route untuk update data
-app.put("/mahasiswas/:id", asyncWrapper(async (req,res) => {
+app.put("/mahasiswas/:id", auth, asyncWrapper(async (req,res) => {
     const {id} = req.params
     await Mahasiswa.findByIdAndUpdate(id, req.body);
     req.flash('flash_message', 'Data Berhasil Di Ubah');
@@ -125,7 +189,7 @@ app.put("/mahasiswas/:id", asyncWrapper(async (req,res) => {
 }))
 
 //route untuk delete data
-app.delete("/mahasiswas/:id", asyncWrapper(async (req,res) => {
+app.delete("/mahasiswas/:id", auth, asyncWrapper(async (req,res) => {
     const {id} = req.params;
     await Mahasiswa.findOneAndDelete({_id: {$in: id}});
     req.flash('flash_message', 'Data Berhasil Di Hapus');
@@ -134,7 +198,7 @@ app.delete("/mahasiswas/:id", asyncWrapper(async (req,res) => {
 
 // ROUTE UNTUK DOSEN
 //Route untuk show dosen
-app.get('/dosenakademik/:id', async (req,res) => {
+app.get('/dosenakademik/:id', auth, async (req,res) => {
     const {id} = req.params;
     const dosenakademik = await Dosenakademik.findById(id).populate('mahasiswa');
     res.render('dosenakademik/show.ejs', {
